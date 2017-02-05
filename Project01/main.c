@@ -10,217 +10,245 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <time.h>
+#include "load.h"
 
 struct account{
-    char* user;
+    int user;
     char* pass;
 };
-
-void readStudent(void);
-void showMenuOptions(void);
-void showLoginView(void);
-char** readFile( char file_name[], char target[]);
-void trim( char *s );
+struct course{
+    char* courseID;
+    char* name;
+};
+struct student{
+    char* studentID;
+    char* name;
+    char* gender;
+    short grade;
+    char* address;
+    short admission_year;
+    char* courses;
+};
+struct studentcourse{
+    int studentID;
+    char* courseID;
+    short mark;
+};
+void enterLogin( void );
+void showMenuOptions( void );
+void showLoginView( void );
+void makeAccountStructure( char file_name[] );
+void makeCourseStructure( char file_name[] );
+void makeStudentStructure( char file_name[] );
+void makeStuCourseStructure( char file_name[] );
+int getArrayLength(char** dataArray);
 
 #define MAXUSER 1000
 #define MAXTEXT 50
 #define N 256
 
+struct account*       Account;
+struct course*        Course;
+struct student*       Student;
+struct studentcourse* StudentCourse;
+
+int myStudentID = 0;
+int accountMaxNum = 0;
+int courseMaxNum = 0;
+int studentMaxNum = 0;
+int stuCourseMaxNum = 0;
+
 int main(int argc, const char * argv[]) {
-    char file_name[] = "/Users/shinji/Mydata/personalmarketing/english/canada/school/CICCC/subject/401/Project01/Project01/Project01/Accounts.txt";
+    char file_account[] = "/Users/shinji/Mydata/personalmarketing/english/canada/school/CICCC/subject/401/Project01/Project01/Project01/Accounts.txt";
+    char file_course[] = "/Users/shinji/Mydata/personalmarketing/english/canada/school/CICCC/subject/401/Project01/Project01/Project01/Courses.txt";
+    char file_student[] = "/Users/shinji/Mydata/personalmarketing/english/canada/school/CICCC/subject/401/Project01/Project01/Project01/Students.txt";
+    char file_studentscourses[] = "/Users/shinji/Mydata/personalmarketing/english/canada/school/CICCC/subject/401/Project01/Project01/Project01/StudentsCourses.txt";
     
-    char **usernameArray;
-    char **userpassArray;
-    char s_user[] = "User:";
-    char s_pass[] = "Pass:";
-    size_t userdataLen = 0;
-    size_t userpassLen = 0;
-    size_t userdataLen2 = 0;
-    size_t userpassLen2 = 0;
-    struct account* accountList;
-    
-    accountList = (struct account*) malloc(sizeof(struct account) * MAXUSER);
-    
-    usernameArray = readFile(file_name, s_user);
-    userdataLen = strlen( *usernameArray );
-    for (int a = 0; a <= userdataLen; a++) {
-        userdataLen2 = strlen(usernameArray[a]);
-        accountList[a] = *(struct account*) malloc(sizeof(struct account) * userdataLen);
-        accountList[a].user = usernameArray[a];
-        printf( "%s\n", accountList[a].user );
-    }
-    userpassArray = readFile(file_name, s_pass);
-    userpassLen = strlen( *userpassArray );
-    for (int a = 0; a <= userdataLen; a++) {
-        userpassLen2 = strlen(userpassArray[a]);
-        accountList[a].pass = userpassArray[a];
-        printf( "%s\n", accountList[a].pass );
-    }
+    Account       = (struct account*) malloc(sizeof(struct account) * MAXUSER);
+    Course        = (struct course*) malloc(sizeof(struct course) * MAXUSER);
+    Student       = (struct student*) malloc(sizeof(struct student) * MAXUSER);
+    StudentCourse = (struct studentcourse*) malloc(sizeof(struct studentcourse) * MAXUSER);
     
     
+    // 構造体の配列の変数を入れた配列を渡して、その関数内で代入したかったな。
+    //    char* strctArray[4] = { &Account, &Course, &Student, &StudentCourse};
+    //    Course[0].studentID = "12345";
+    //    printf("%s \n", Course[0].studentID );
+    //    printf("%s \n", *(strctArray[1])[0].studentID );
     
+    makeAccountStructure(file_account);
+    makeCourseStructure(file_course);
+    makeStudentStructure(file_student);
+    makeStuCourseStructure(file_studentscourses);
     
+    Account = (struct account*) realloc(Account, sizeof(struct account ) * accountMaxNum);
+    Course  = (struct course*) realloc(Course, sizeof(struct course ) * courseMaxNum);
+    Student = (struct student*) realloc(Student, sizeof(struct student ) * studentMaxNum);
+    StudentCourse = (struct studentcourse*) realloc(StudentCourse, sizeof(struct studentcourse ) * stuCourseMaxNum);
     
-//    userpassArray = readFile(file_name, s_pass);
-//    
-//    userpassLen = strlen( *userpassArray );
-//    for (int a = 0; a <= userpassLen; a++) {
-//        printf( "%s\n", userpassArray[a] );
+    printf("%s \n",Student[0].courses);
+    
+//    for (int i = 0; i < 20; i++) {
+//        printf("%d \n",Account[i].user);
+//        printf("%s\n",Account[i].pass);
 //    }
-    
-    //    readStudent();
-    //    showLoginView();
+//    printf("%d \n",Student[0].grade);
+        showLoginView();
     //    showMenuOptions();
     
     return 0;
 }
 
 
+// need divided
 void showLoginView(void){
-    char* username = malloc(sizeof(char *) * MAXTEXT);
-    char* password = malloc(sizeof(char *) * MAXTEXT);
     printf("************************************************************\n");
     printf("Please enter your account to login:\n");
     printf("************************************************************\n");
-    printf("Username:\n");
-    scanf("%s", username);
-    printf("Password:\n");
-    scanf("%s", password);
-    if(username == "" && password == ""){
-        //gotomenu
-    }
-    
+    enterLogin();
 }
 
-char** readFile(char file_name[], char target[]){
-    FILE *fp;
-    char s[100];
-    char *p;
+void enterLogin( void ){
+    int num = 0, inputUsername = 0;
+    char* inputPassword = malloc(sizeof(char) * N);
+    printf("Username:");
+    scanf("%d", &inputUsername);
+    printf("Password:");
+    scanf("%s", inputPassword);
     
-    char **usernameArray;
-    char **passArray;
-    
-    char str[N] = "";
-    char *p1, *p2;
-    size_t len = 0, userdataLen = 0;
-    int i = 0;
-    
-    fp = fopen( file_name, "r" );
-    if( fp == NULL ){
-        printf( "%s cannot be opened file!\n", file_name );
-        exit(1);
-    }
-    
-    usernameArray = malloc(MAXUSER); //最初の配列のメモリを確保
-//    accountList = (struct account*) malloc(sizeof(struct account) * MAXUSER);
-    
-    while( fgets( s, N, fp ) != NULL ){ // get a each line, loop until null
-        p = strstr(s, target); //seach "target"
-        if(p != NULL){
-            p1 = s;
-            len = strlen(target);
-            while((p2 = strstr(p1, target)) != NULL) { // loop until no target
-                strncat(str,p1,p2 - p1); // combine without deleted strings
-                p1 = p2 + len; // update a pointer
-            }
-            usernameArray[i] = (char *) malloc(sizeof(char *) * len);
-            trim(p1);
-            size_t p1_len = strlen( p1 );
-            
-            strncpy( usernameArray[i], p1+1, p1_len-2 );//p1の先頭+1の位置から7文字をusenumにコピー
-            /* このusernameArrayは将来消す */
-//            accountList[i].user = usernameArray[i];
-            usernameArray[i][p1_len-2] = '\0'; //でも文字数指定って..だめなきがする
-            
-            i++;
+    //check login
+    for (int i = 0; i < accountMaxNum; i++) {
+        if(inputUsername == Account[i].user){
+            myStudentID = inputUsername;
+            num = i;
+            break;
         }
     }
     
-    fclose( fp );
-    
-//    userdataLen = strlen(*usernameArray);
-//    for (int a = 0; a <= userdataLen; a++) {
-//        printf( "%s\n", usernameArray[a] );
-//    }
-    
-    return usernameArray;
-}
-
-
-void trim( char *s ) {
-    int i, j;
-    for( i = strlen(s)-1; i >= 0 && isspace( s[i] ); i-- ) ;
-    s[i+1] = '\0';
-    for( i = 0; isspace( s[i] ); i++ ) ;
-    if( i > 0 ) {
-        j = 0;
-        while( s[i] ) s[j++] = s[i++];
-        s[j] = '\0';
+    if(strcmp(inputPassword,Account[num].pass) == 0){
+        // login saccess
+        printf("************************************************************\n");
+        printf("Welcome to Cornerstone International College of Canada.\n");
+        printf("************************************************************\n");
+    }else{
+        printf("************************************************************\n");
+        printf("Your account does not exist. Please try again!\n");
+        printf("************************************************************\n");
+        enterLogin();
     }
+    
 }
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-void readStudent(void){
-    char file_name[] = "/Users/shinji/Mydata/personalmarketing/english/canada/school/CICCC/subject/401/Project01/Project01/Project01/Accounts.txt";
+void makeAccountStructure( char file_name[] ){
     
-    FILE *fp;
-    char s[100];
-    char s_user[] = "User:";
-    char s_pass[] = "Pass:";
-    char *p;
+    char** dataArray;
+    int dataLen = 0;
     
-    char **usernameArray;
+    dataArray = loadFile(file_name);
     
-    char str[N] = "";
-    char *p1, *p2;
-    size_t len = 0,userdataLen = 0;
-    int i = 0;
+    char** arrayUser = getData(dataArray, "User");
+    dataLen = getArrayLength(arrayUser);
     
-    fp = fopen( file_name, "r" );
-    if( fp == NULL ){
-        printf( "%s cannot be opened file!\n", file_name );
-        exit(1);
+    char** arrayPass = getData(dataArray, "Pass");
+    accountMaxNum = dataLen;
+    
+    for (int i = 0; i < dataLen; i++) {
+        Account[i].user = atoi(arrayUser[i]);
+        Account[i].pass = arrayPass[i];
     }
     
-    usernameArray = malloc(MAXUSER); //最初の配列のメモリを確保
-    while( fgets( s, N, fp ) != NULL ){ // get a each line, loop until null
-        p = strstr(s, s_user); //seach "User:"
-        if(p != NULL){
-            p1 = s;
-            len = strlen(s_user);
-            while((p2 = strstr(p1, s_user)) != NULL) { // loop until no target
-                strncat(str,p1,p2 - p1); // combine without deleted strings
-                p1 = p2 + len; // update a pointer
-            }
-            usernameArray[i] = (char *) malloc(sizeof(char *) * len);
-            strncpy( usernameArray[i], p1+1, 7 ); //p1の先頭+3の位置から5文字をusenumにコピー
-            usernameArray[i][7] = '\0'; //でも文字数指定って..だめなきがする
-            i++;
-        }
+}
+
+void makeCourseStructure( char file_name[] ){
+    
+    char** dataArray;
+    int dataLen = 0;
+    
+    dataArray = loadFile(file_name);
+    
+    char** arrayCourseID = getData(dataArray, "courseID");
+    dataLen = getArrayLength(arrayCourseID);
+    
+    char** arrayName = getData(dataArray, "name");
+    courseMaxNum = dataLen;
+    
+    for (int i = 0; i < dataLen; i++) {
+        Course[i].courseID = arrayCourseID[i];
+        Course[i].name = arrayName[i];
+//        printf("%s \n", Course[i].name);
     }
     
-    fclose( fp );
+}
+
+void makeStudentStructure( char file_name[] ){
     
-    //just chcking
-    userdataLen = strlen(*usernameArray);
-    for (int a = 0; a <= userdataLen; a++) {
-        printf( "%s\n", usernameArray[a] );
+    char** dataArray;
+    int dataLen = 0;
+    
+    dataArray = loadFile(file_name);
+    char** arrayStudentID = getData(dataArray, "studentID");
+    dataLen = getArrayLength(arrayStudentID);
+    
+    char** arrayName = getData(dataArray, "name");
+    char** arrayGender = getData(dataArray, "gender");
+    char** arrayGrade = getData(dataArray, "grade");
+    char** arrayAddress = getData(dataArray, "address");
+    char** arrayAdmis = getData(dataArray, "admission_year");
+    char** arrayCourses = getData(dataArray, "courses");
+    studentMaxNum = dataLen;
+    
+    for (int i = 0; i < dataLen; i++) {
+        Student[i].studentID = arrayStudentID[i];
+        Student[i].name = arrayName[i];
+        Student[i].gender = arrayGender[i];
+        Student[i].grade = (short)atoi(arrayGrade[i]);
+        Student[i].address = arrayAddress[i];
+        Student[i].admission_year = (short)atoi(arrayAdmis[i]);
+        Student[i].courses = arrayCourses[i];
     }
     
-};
+}
+
+void makeStuCourseStructure( char file_name[] ){
+    
+    char** dataArray;
+    int dataLen = 0;
+    
+    dataArray = loadFile(file_name);
+    
+    char** arrayStudentID = getData(dataArray, "studentID");
+    dataLen = getArrayLength(arrayStudentID);
+    
+    char** arrayCourseID = getData(dataArray, "courseID");
+    
+    char** arrayMark = getData(dataArray, "mark");
+    stuCourseMaxNum = dataLen;
+    
+//    printf("StuCourse:%zu \n", dataLen);
+    for (int i = 0; i < dataLen; i++) {
+        StudentCourse[i].studentID = atoi(arrayStudentID[i]);
+        StudentCourse[i].courseID = arrayCourseID[i];
+        StudentCourse[i].mark = (short)atoi(arrayMark[i]);
+    }
+    
+}
+
+int getArrayLength(char** dataArray){
+    int num = 0;
+    while (dataArray[num] != NULL) {
+        num++;
+    }
+    return num;
+}
+
+
+
+
+
+
+
+
