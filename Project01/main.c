@@ -167,7 +167,7 @@ void makeAccountStructure( char file_name[] ){
     dataArray = loadFile(file_name);
     
     char** arrayUser = getData(dataArray, "User");
-    dataLen = getArrayLength(arrayUser);
+    dataLen = getArrayLen(arrayUser);
     
     char** arrayPass = getData(dataArray, "Pass");
     accountMaxNum = dataLen;
@@ -187,7 +187,7 @@ void makeCourseStructure( char file_name[] ){
     dataArray = loadFile(file_name);
     
     char** arrayCourseID = getData(dataArray, "courseID");
-    dataLen = getArrayLength(arrayCourseID);
+    dataLen = getArrayLen(arrayCourseID);
     
     char** arrayName = getData(dataArray, "name");
     courseMaxNum = dataLen;
@@ -206,7 +206,7 @@ void makeStudentStructure( char file_name[] ){
     
     dataArray = loadFile(file_name);
     char** arrayStudentID = getData(dataArray, "studentID");
-    dataLen = getArrayLength(arrayStudentID);
+    dataLen = getArrayLen(arrayStudentID);
     
     char** arrayName = getData(dataArray, "name");
     char** arrayGender = getData(dataArray, "gender");
@@ -225,7 +225,7 @@ void makeStudentStructure( char file_name[] ){
         Student[i].address = arrayAddress[i];
         Student[i].admission_year = (short)atoi(arrayAdmis[i]);
     }
-    for (int i = 0; i < getArrayLength(arrayCourses); i++) {
+    for (int i = 0; i < getArrayLen(arrayCourses); i++) {
         Student[i].courses = dividedDataCourses(arrayCourses[i]);
         //        printf("%s", Student[i].courses[1]);
     }
@@ -239,7 +239,7 @@ void makeStuCourseStructure( char file_name[] ){
     dataArray = loadFile(file_name);
     
     char** arrayStudentID = getData(dataArray, "studentID");
-    dataLen = getArrayLength(arrayStudentID);
+    dataLen = getArrayLen(arrayStudentID);
     
     char** arrayCourseID = getData(dataArray, "courseID");
     
@@ -262,76 +262,72 @@ void mainMenu(){
     int repeater = 0;
     int opt;
     while(repeater==0){
-    printf("******************************************\n");
-    printf("Select from the options:\n");
-    printf("******************************************\n");
-    printf("¬[1] Print my enrollment certificate\n");
-    printf("¬[2] Print my courses\n");
-    printf("¬[3] Print my transcript\n");
-    printf("¬[4] Print my GPA\n");
-    printf("¬[5] Print my ranking among all students in the college\n");
-    printf("¬[6] List of all available courses\n");
-    printf("¬[7] List of all students\n");
-    printf("¬[8] Logout\n");
-    printf("¬[9] Exit\n");
-    printf("******************************************\n");
-    printf("Enter the number corresponding to each item to proceed:\n");
-    
-
-    
-    showPrintMyCourse(myStudentID);
-    
+        printf("******************************************\n");
+        printf("Select from the options:\n");
+        printf("******************************************\n");
+        printf("¬[1] Print my enrollment certificate\n");
+        printf("¬[2] Print my courses\n");
+        printf("¬[3] Print my transcript\n");
+        printf("¬[4] Print my GPA\n");
+        printf("¬[5] Print my ranking among all students in the college\n");
+        printf("¬[6] List of all available courses\n");
+        printf("¬[7] List of all students\n");
+        printf("¬[8] Logout\n");
+        printf("¬[9] Exit\n");
+        printf("******************************************\n");
+        printf("Enter the number corresponding to each item to proceed:\n");
+        
+        
         scanf("%d",&opt);
         myGpa = calculateGPA(StudentCourse, myStudentID);
-    switch(opt){
-        case 1:
-            printf("Dear Sir/Madam,\n\nThis is to certify that Mr. %s with student id %d is a student at grade %hd at CICCC. He was admited to our college in %hd and has taken %d course(s). Currently he resides at %s\n\n", Student[indexStudentStruct].name, myStudentID,Student[indexStudentStruct].grade ,Student[indexStudentStruct].admission_year, numCourses ,Student[indexStudentStruct].address);
-            printf("If you have any questions, please do not hesitate to contact us.\n");
-            delay(3000);
-            break;
-        case 2:
-            printf("Hi Mr. %s  has taken the following courses:\n", Student[indexStudentStruct].name);
-            
-
-            showPrintMyCourse(myStudentID);
-            break;
-        case 3:
-            printf("Hi Mr. %s,\n", Student[indexStudentStruct].name);
-            printf("Here is your transcript:\n\n");
-            break;
-        case 4:
-            printf("Hi Mr. %s,\n", Student[indexStudentStruct].name);
-            printf("Your GPA is: %f\n\n",myGpa/numCourses);
-            delay(4000);
-            break;
-        case 5:
-            printf("Hi Mr. %s,\n", Student[indexStudentStruct].name);
-            printf("Your GPA is:%f and therefore your rank is []\n\n",myGpa/numCourses);
-            break;
-        case 6:
-            printf("The following courses are offered in CICCC:\n");
-            
-            break;
-        case 7:
-            printf("There are %d students in CICCC as following:\n", stuCourseMaxNum);
-            
-            break;
-        case 8:
-            printf("Logging out...");
-            delay(4000);
-            repeater=1;
-            
-            break;
-        case 9:
-            printf("Thank you for using our program!\n");
-            delay(4000);
-            exit(1);
-            break;
-        default:
-            printf("Wrong Option, please try again!\n");
+        switch(opt){
+            case 1:
+                printf("Dear Sir/Madam,\n\nThis is to certify that Mr. %s with student id %d is a student at grade %hd at CICCC. He was admited to our college in %hd and has taken %d course(s). Currently he resides at %s\n\n", Student[indexStudentStruct].name, myStudentID,Student[indexStudentStruct].grade ,Student[indexStudentStruct].admission_year, numCourses ,Student[indexStudentStruct].address);
+                printf("If you have any questions, please do not hesitate to contact us.\n");
+                delay(3000);
+                break;
+            case 2:
+                printf("Hi Mr. %s  has taken the following courses:\n", Student[indexStudentStruct].name);
+                
+                showPrintMyCourse(myStudentID);
+                break;
+            case 3:
+                printf("Hi Mr. %s,\n", Student[indexStudentStruct].name);
+                printf("Here is your transcript:\n\n");
+                break;
+            case 4:
+                printf("Hi Mr. %s,\n", Student[indexStudentStruct].name);
+                printf("Your GPA is: %f\n\n",myGpa/numCourses);
+                delay(4000);
+                break;
+            case 5:
+                printf("Hi Mr. %s,\n", Student[indexStudentStruct].name);
+                printf("Your GPA is:%f and therefore your rank is []\n\n",myGpa/numCourses);
+                break;
+            case 6:
+                printf("The following courses are offered in CICCC:\n");
+                
+                break;
+            case 7:
+                printf("There are %d students in CICCC as following:\n", stuCourseMaxNum);
+                
+                break;
+            case 8:
+                printf("Logging out...");
+                delay(4000);
+                repeater=1;
+                
+                break;
+            case 9:
+                printf("Thank you for using our program!\n");
+                delay(4000);
+                exit(1);
+                break;
+            default:
+                printf("Wrong Option, please try again!\n");
         }
     }
-        
+    
     if (repeater==1){
         delay(3000);
         showLoginView();
