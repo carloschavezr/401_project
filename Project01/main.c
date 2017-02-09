@@ -28,6 +28,7 @@ struct student{
     char* address;
     short admission_year;
     char** courses;
+    int courses_num;
 };
 struct studentcourse{
     int studentID;
@@ -35,21 +36,25 @@ struct studentcourse{
     short mark;
 };
 void enterLogin( void );
-void showMenuOptions( void );
 void showLoginView( void );
 void makeAccountStructure( char file_name[] );
 void makeCourseStructure( char file_name[] );
 void makeStudentStructure( char file_name[] );
 void makeStuCourseStructure( char file_name[] );
 int getArrayLength( char** dataArray );
-int getArrayLen(char** dataArray);
+int getArrayLen( char** dataArray );
 void showPrintMyCourse( int myStudentID );
-char* getCourseName(char* courseID);
-int strlength(char* line);
+void showPrintMyTranscript( void );
+void showPrintAllStudents( void );
+void showPrintAllCourses( void );
+char** getCourseName( char** courseID, int courseTotalNum );
+char** getCourseTranscript( char** courseID, int courseTotalNum );
 
-float calculateGPA(struct studentcourse* StudentCourse, int myStudentID);
-int calculateRank(int myStudentID);
+int compareIds( int studentID );
+float calculateGPA( struct studentcourse* StudentCourse, int myStudentID );
+int calculateRank( int myStudentID );
 void printCourses();
+unsigned GetDigit( unsigned num );
 
 void mainMenu();
 void delay();
@@ -69,23 +74,22 @@ struct student*       Student;
 struct studentcourse* StudentCourse;
 
 int myStudentID = 0;
-int myStudentNum = 0;
+int myStuStrNum = 0;
 int accountMaxNum = 0;
 int courseMaxNum = 0;
 int studentMaxNum = 0;
 int stuCourseMaxNum = 0;
 
-int indexStudentStruct = 0;
+//int indexStudentStruct = 0;
 float myGpa = 0.0;
 int numCourses = 0;
 
-int stuStrIndex = 0;
 
 int main( int argc, const char * argv[] ) {
     
     char file_account[] = FILE_ACCOUNT;
     char file_course[] = FILE_COURSE;
-    char file_student[] = FILE_STUDENT;
+    char* file_student = FILE_STUDENT;
     char file_studentscourses[] = FILE_STUCOURSE;
     
     Account       = (struct account*) malloc(sizeof(struct account) * MAXUSER);
@@ -110,7 +114,6 @@ int main( int argc, const char * argv[] ) {
     StudentCourse = (struct studentcourse*) realloc(StudentCourse, sizeof(struct studentcourse ) * stuCourseMaxNum);
     
       showLoginView();
-//      showMenuOptions();
     
     return 0;
     
@@ -119,6 +122,12 @@ int main( int argc, const char * argv[] ) {
 
 // need divided
 void showLoginView(void){
+    
+//    myStudentID = 7813007;
+//    myStuStrNum = 0;
+//    showPrintMyTranscript();
+//    showPrintAllStudents();
+    
     printf("************************************************************\n");
     printf("Please enter your account to login:\n");
     printf("************************************************************\n");
@@ -138,7 +147,7 @@ void enterLogin( void ){
         if(inputUsername == Account[i].user){
             myStudentID = inputUsername;
             num = i;
-            indexStudentStruct =compareIds(myStudentID);
+            myStuStrNum = compareIds(myStudentID);
             break;
         }
     }
@@ -167,7 +176,7 @@ void makeAccountStructure( char file_name[] ){
     dataArray = loadFile(file_name);
     
     char** arrayUser = getData(dataArray, "User");
-    dataLen = getArrayLen(arrayUser);
+    dataLen = getArrayLength(arrayUser);
     
     char** arrayPass = getData(dataArray, "Pass");
     accountMaxNum = dataLen;
@@ -187,7 +196,7 @@ void makeCourseStructure( char file_name[] ){
     dataArray = loadFile(file_name);
     
     char** arrayCourseID = getData(dataArray, "courseID");
-    dataLen = getArrayLen(arrayCourseID);
+    dataLen = getArrayLength(arrayCourseID);
     
     char** arrayName = getData(dataArray, "name");
     courseMaxNum = dataLen;
@@ -206,7 +215,7 @@ void makeStudentStructure( char file_name[] ){
     
     dataArray = loadFile(file_name);
     char** arrayStudentID = getData(dataArray, "studentID");
-    dataLen = getArrayLen(arrayStudentID);
+    dataLen = getArrayLength(arrayStudentID);
     
     char** arrayName = getData(dataArray, "name");
     char** arrayGender = getData(dataArray, "gender");
@@ -216,8 +225,10 @@ void makeStudentStructure( char file_name[] ){
     char** arrayCourses = getData( dataArray, "courses");
     
     studentMaxNum = dataLen;
+//    printf("%d \n", dataLen);
     
     for (int i = 0; i < dataLen; i++) {
+//        printf("%s \n",arrayStudentID[i]);
         Student[i].studentID = atoi(arrayStudentID[i]);
         Student[i].name = arrayName[i];
         Student[i].gender = arrayGender[i];
@@ -225,10 +236,14 @@ void makeStudentStructure( char file_name[] ){
         Student[i].address = arrayAddress[i];
         Student[i].admission_year = (short)atoi(arrayAdmis[i]);
     }
-    for (int i = 0; i < getArrayLen(arrayCourses); i++) {
+    
+    
+    for (int i = 0; i < getArrayLength(arrayCourses); i++) {
         Student[i].courses = dividedDataCourses(arrayCourses[i]);
-        //        printf("%s", Student[i].courses[1]);
+        Student[i].courses_num = getArrayLength(Student[i].courses);
     }
+    
+    
 }
 
 void makeStuCourseStructure( char file_name[] ){
@@ -239,14 +254,14 @@ void makeStuCourseStructure( char file_name[] ){
     dataArray = loadFile(file_name);
     
     char** arrayStudentID = getData(dataArray, "studentID");
-    dataLen = getArrayLen(arrayStudentID);
+    dataLen = getArrayLength(arrayStudentID);
     
     char** arrayCourseID = getData(dataArray, "courseID");
     
     char** arrayMark = getData(dataArray, "mark");
     stuCourseMaxNum = dataLen;
     
-//    printf("StuCourse:%zu \n", dataLen);
+//    printf("StuCourse:%d \n", dataLen);
     for (int i = 0; i < dataLen; i++) {
         StudentCourse[i].studentID = atoi(arrayStudentID[i]);
         StudentCourse[i].courseID = arrayCourseID[i];
@@ -282,34 +297,37 @@ void mainMenu(){
         myGpa = calculateGPA(StudentCourse, myStudentID);
         switch(opt){
             case 1:
-                printf("Dear Sir/Madam,\n\nThis is to certify that Mr. %s with student id %d is a student at grade %hd at CICCC. He was admited to our college in %hd and has taken %d course(s). Currently he resides at %s\n\n", Student[indexStudentStruct].name, myStudentID,Student[indexStudentStruct].grade ,Student[indexStudentStruct].admission_year, numCourses ,Student[indexStudentStruct].address);
+                printf("Dear Sir/Madam,\n\nThis is to certify that Mr. %s with student id %d is a student at grade %hd at CICCC. He was admited to our college in %hd and has taken %d course(s). Currently he resides at %s\n\n", Student[myStuStrNum].name, myStudentID,Student[myStuStrNum].grade ,Student[myStuStrNum].admission_year, numCourses ,Student[myStuStrNum].address);
                 printf("If you have any questions, please do not hesitate to contact us.\n");
                 delay(3000);
                 break;
             case 2:
-                printf("Hi Mr. %s  has taken the following courses:\n", Student[indexStudentStruct].name);
+                printf("Hi Mr. %s has taken the following courses:\n", Student[myStuStrNum].name);
                 
                 showPrintMyCourse(myStudentID);
                 break;
             case 3:
-                printf("Hi Mr. %s,\n", Student[indexStudentStruct].name);
+                printf("Hi Mr. %s,\n", Student[myStuStrNum].name);
                 printf("Here is your transcript:\n\n");
+                showPrintMyTranscript();
+                printf("Your GPA is: %f\n\n",myGpa/numCourses);
                 break;
             case 4:
-                printf("Hi Mr. %s,\n", Student[indexStudentStruct].name);
+                printf("Hi Mr. %s,\n", Student[myStuStrNum].name);
                 printf("Your GPA is: %f\n\n",myGpa/numCourses);
                 delay(4000);
                 break;
             case 5:
-                printf("Hi Mr. %s,\n", Student[indexStudentStruct].name);
+                printf("Hi Mr. %s,\n", Student[myStuStrNum].name);
                 printf("Your GPA is:%f and therefore your rank is []\n\n",myGpa/numCourses);
                 break;
             case 6:
                 printf("The following courses are offered in CICCC:\n");
-                
+                showPrintAllCourses();
                 break;
             case 7:
-                printf("There are %d students in CICCC as following:\n", stuCourseMaxNum);
+                printf("There are %d students in CICCC as following:\n", studentMaxNum);
+                showPrintAllStudents();
                 
                 break;
             case 8:
@@ -337,7 +355,6 @@ void mainMenu(){
 
 void delay(int x){
    	int c = 1, d = 1;
-    
     for ( c = 1 ; c <= x ; c++ )
         for ( d = 1 ; d <= 200000 ; d++ )
         {}
@@ -345,41 +362,150 @@ void delay(int x){
 
 
 void showPrintMyCourse(int myStudentID){
-    for (int i = 0; i < studentMaxNum; i++) {
-        if(Student[i].studentID == myStudentID){
-            stuStrIndex = i;
-        }
+    char** courseName;
+    courseName = getCourseName(Student[myStuStrNum].courses, Student[myStuStrNum].courses_num);
+    int nums = getArrayLength(courseName);
+    for (int i = 0; i < nums; i++) {
+        printf("%d) %s \n", i+1, courseName[i]);
     }
-    
-    int mnum = getArrayLen(Student[stuStrIndex].courses);
-    
-    for (int i = 0; i < mnum; i++) {
-//        printf("%s \n",Student[stuStrIndex].courses[i]);
-        char* courseName = getCourseName(Student[stuStrIndex].courses[i]);
-        printf("%s\n", courseName);
-    }
-    
-    
 }
 
-char* getCourseName(char* courseID){
-    int idlen = strlength(courseID);
-    char* courseName;
-    char* courseNameID;
+
+void showPrintMyTranscript(void){
+    char** courseName;
+    courseName = getCourseTranscript(Student[myStuStrNum].courses, Student[myStuStrNum].courses_num);
+    
+    int nums = getArrayLength(courseName);
+    for (int i = 0; i < nums; i++) {
+        printf("%d) %s \n", i+1, courseName[i]);
+    }
+}
+
+void showPrintAllCourses( void ){
     for (int i = 0; i < courseMaxNum; i++) {
-        if(strcmp(courseID, Course[i].courseID) == 0){
-            courseName = Course[i].name;
-            courseID = Course[i].courseID;
-            strcat(courseNameID, courseName);
-            break;
+
+        printf("%d) %s: %s \n", i+1, Course[i].courseID, Course[i].name);
+    }
+}
+
+void showPrintAllStudents(void){
+    for (int i = 0; i < studentMaxNum; i++) {
+        printf("%d) %s: %d \n", i+1, Student[i].name,Student[i].studentID);
+    }
+}
+
+
+
+char** getCourseTranscript(char** courseID, int courseTotalNum){
+    char** courseNameID;
+    char* courseName;
+    int num = 0;
+    courseNameID = (char **) malloc(sizeof(char **) * courseTotalNum);
+    //全てのコースの中から
+    for (int i = 0; i < courseMaxNum; i++) {
+        
+        //自分が受けているコースを探し出して
+        for (int a = 0; a < courseTotalNum; a++) {
+            
+            //            printf("Course: %s\n", Course[i].courseID);
+            //自分が受けているコースと、コース内容情報が一致したら
+            if(strcmp(courseID[a], Course[i].courseID) == 0){
+                
+                
+                //                printf("stuCourseMaxNum:%d \n",stuCourseMaxNum);
+                //studentsCourseの中を繰り返す
+                for (int l = 0; l < stuCourseMaxNum; l++) {
+                    
+                    //自分だけなおかつコース情報の中にないのは除外
+//
+                    if( (myStudentID == StudentCourse[l].studentID) && (strcmp(courseID[a], StudentCourse[l].courseID) == 0) ){
+//                        int marklen = strlen(StudentCourse[l].mark);
+                        int marklen = GetDigit(StudentCourse[l].mark);
+                        int idlen = strlength(courseID[a]);
+                        int namelen = strlength(Course[i].name);
+                        
+                        courseNameID[num] = (char *) malloc(sizeof(char *) * (idlen+namelen+3+marklen+2));// for [: \0]
+                        courseName = Course[i].name;
+                        strcpy(courseNameID[num], Course[i].courseID);
+                        strcat(courseNameID[num], ": ");
+                        strcat(courseNameID[num], courseName);
+                        strcat(courseNameID[num], ": ");
+                        int markNum = StudentCourse[l].mark;
+                        char markEn[marklen];
+                        sprintf(markEn, "%d", markNum);
+                        strcat(courseNameID[num], markEn);
+                        
+                    }
+                    
+                }
+                
+                num++;
+            }
         }
     }
-    
     return courseNameID;
 }
 
 
-//
+
+
+char** getCourseName(char** courseID, int courseTotalNum){
+    char** courseNameID;
+    char* courseName;
+    int num = 0;
+    courseNameID = (char **) malloc(sizeof(char **) * courseTotalNum);
+    //
+//    printf("courseTotalNum %d\n", courseTotalNum);
+//    printf("courseMaxNum %d\n", courseMaxNum);
+    
+    //全てのコースの中から
+    for (int i = 0; i < courseMaxNum; i++) {
+        
+        //自分が受けているコースを探し出して
+        for (int a = 0; a < courseTotalNum; a++) {
+            
+//            printf("Course: %s\n", Course[i].courseID);
+            //自分が受けているコースと、コース内容情報が一致したら
+            if(strcmp(courseID[a], Course[i].courseID) == 0){
+                
+//                printf("%s\n",Course[i].name);
+                int idlen = strlength(courseID[a]);
+                int namelen = strlength(Course[i].name);
+                
+                courseNameID[num] = (char *) malloc(sizeof(char *) * (idlen+namelen+3));// for [: \0]
+                courseName = Course[i].name;
+                strcpy(courseNameID[num], Course[i].courseID);
+                strcat(courseNameID[num], ": ");
+                strcat(courseNameID[num], courseName);
+                
+                num++;
+            }
+        }
+    }
+    return courseNameID;
+}
+
+
+
+
+
+
+int getArrayLength(char** dataArray){
+    int num = 0;
+    while (dataArray[num] != NULL) {
+        num++;
+    }
+    return num;
+}
+
+int getArrayLen(char** dataArray){
+    int size = sizeof dataArray / sizeof dataArray[0];
+    return size;
+}
+
+
+
+
 
 int compareIds(int studentID){
     int result=0;
@@ -410,23 +536,11 @@ int calculateRank(int myStudentID){
     return result;
 }
 
-
-
-
-int getArrayLength(char** dataArray){
-    int num = 0;
-    while (dataArray[num] != NULL) {
-        num++;
+unsigned GetDigit(unsigned num){
+    unsigned digit=0;
+    while(num!=0){
+        num /= 10;
+        digit++;
     }
-    return num;
-}
-
-int getArrayLen(char** dataArray){
-    int size = sizeof dataArray / sizeof dataArray[0];
-    return size;
-}
-
-int strlength(char* line){
-    int len = strlen(line);
-    return len;
+    return digit;
 }

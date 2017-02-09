@@ -19,75 +19,35 @@
 
 
 
-char** dividedDataCourses(char** dataArray){
+char** dividedDataCourses(char* dataArray){
     
-    //他のものと同様に読み込んで、そのあと、配列に分けて、　ストラクチャーに入れる。
-    
-//    printf("%s \n", dataArray);
-   
-    
-    int j = 0, i = 0;
-    int checkString = 0;
+    int j = 0, index = 0, count = 0,
+    check = 0, startIndex = 0;
     char** array;
-    char** result;
     char* dap;
-    
     dap = dataArray;
-    array = (char *) malloc(sizeof(char *) * N);
-    size_t len = strlen(dataArray);
+    array = (char **) malloc(sizeof(char **) * N);
     
-    
-//    printf("%s \n", dataArray);
-    int a = 0, b = 0, index = 0, count = 0, check = 0, startIndex = 0;
     while (dap[j] != '\0') { // each line
-        
-        
-//        printf("[%c] \n", dap[j]);
-        /**/
-//        if(check == 1){
-//            count++;
-//        }
-//        //二番目の"
-//        if((dap[j] == '\"') && check == 1){
-//            check = 0;
-//        //1番目の"
-//        }else if((dap[j] == '\"') && check == 0){
-//            
-//            array[index] = (char *) malloc(sizeof(char *) * MAXUSER);
-//            strncpy( array[index], dap+(j-count-1), count-1 );
-//            
-//            printf("%s \n", array[index]);
-//            check = 1;
-//            count = 0;
-//            index++;
-//            
-//        }
-        /**/
-        
         
         if(dap[j] == '\"' && check == 0){
             check = 1;
             startIndex = j;
         }else if(dap[j] == '\"' && check == 1){
-            array[index] = (char *) malloc(sizeof(char *) * MAXUSER);
+            array[index] = (char *) malloc(sizeof(char *) * (count));
             strncpy( array[index], dap+(startIndex+1), count-1 );
-            array[index][count+1] = '\0';
-            //
-//            printf("%s \n", array[index]);
+            array[index][count] = '\0';
+            
             count = 0;
             check = 0;
             index++;
         }
         if(check == 1){
             count++;
-        }else{
-            b++;
         }
-        //                coursArray[index][count+1] = '\0';
-        a++;
-        
         j++;
     }
+    array = (char **) realloc(array, sizeof(char **) * index);
     return array;
     
 }
@@ -100,68 +60,33 @@ char** dividedDataCourses(char** dataArray){
 char** getData(char** dataArray, char target[]){
     
     int j = 0, i = 0;
-    int checkString = 0;
     char** array;
     
-    array = (char *) malloc(sizeof(char *) * N);
-//    printf("%s \n", dataArray[j]);
+    array = (char **) malloc(sizeof(char **) * N);
     while (dataArray[j] != NULL) { // each line
         if((strstr(dataArray[j], target)) != NULL ){
-            array[i] = (char *) malloc(sizeof(char *) * MAXUSER);
+//            array[i] = (char *) malloc(sizeof(char *) * N);
             
-            checkString = 1;
-            if( target == "courses"){
+            if( strcmp(target, "courses") == 0){
                 array[i] = substring(dataArray[j], 1);
             }else{
                 array[i] = substring(dataArray[j], 0);
             }
+//            array[i] = (char *) realloc(array[i], sizeof(char *) * (strlength(array[i])));
+//                        printf("%s \n", array[i]);
+//            printf("strlength(array[i])%d \n", strlength(array[i]));
             i++;
-//            if((strstr(dataArray[j], "courses")) != NULL ){
-//                
-//                char coursArray[checkWordsComma(dataArray[j])][10];
-////                char **mnthp[checkWordsComma(dataArray[j])];
-//                
-//                int a = 0, index = 0, count = 0, check = 0;
-//                while (dataArray[j][a] != '\0') {
-//                    if(dataArray[j][a] == '\235'){
-//                        check = 1;
-//                    }else if(dataArray[j][a] == ','){
-//                        count = 0;
-//                        index++;
-//                    }
-//                    if(dataArray[j][a] == '\342'){
-//                        check = 0;
-//                    }
-//                    if(check == 1){
-//                        if(dataArray[j][a] != ',' && dataArray[j][a] != '\235'){
-//                            coursArray[index][count] = dataArray[j][a];
-//                            count++;
-//                        }
-//                    }
-//                    coursArray[index][count+1] = '\0';
-//                    a++;
-//                    
-//                }
-//                
-//                
-//                
-//            }else{
-//                checkString = 1;
-//                array[i] = substring(dataArray[j]);
-//                i++;
-//            }
         }
         j++;
     }
-    if(checkString){
-        array = (char *) realloc(array, sizeof(char *) * j);
-    }
-    
+//    printf("%s:%d \n",target,i);
+    array = (char **) realloc(array, sizeof(char **) * i);
     return array;
     
 }
 
 
+//
 int checkWordsComma(char* word){
     size_t len = strlen(word);
     int num = 0;
@@ -188,11 +113,6 @@ char* substring(char* word, int raw){
     int count_start = 0;
     size_t len = 0;
     int checker = 0;
-    if(raw == NULL){
-        raw = 0;
-    }
-    
-    char *p1, *p2;
     len = strlen(word);
     
     // get start point
@@ -203,19 +123,13 @@ char* substring(char* word, int raw){
     for (int i = 0; i < len; i++) {
         if(word[i] == '\"'){
             checker = 1;
-        }else if (word[i] == '\"'){
-            checker = 2;
         }
-        if(checker == 1 || checker == 2){
+        if(checker == 1){
             counter++;
         }
     }
     
-    
     if(checker == 1){
-        counter = counter - 2;
-        count_start = count_start + 1;
-    }else if (checker == 2){
         counter = counter - 2;
         count_start = count_start + 1;
     }
@@ -224,15 +138,11 @@ char* substring(char* word, int raw){
         count_start = count_start - 1;
     }
     
-    
     result = (char*) malloc(sizeof(char) * counter+1);
     strncpy( result, word+(count_start), counter );
     result[counter+1] = '\0';
     
-    
     return result;
-    
-    
 }
 
 
@@ -246,9 +156,44 @@ char* substring(char* word, int raw){
 
 
 
-void trim( char *s ) {
+
+char** loadFile(char file_name[]){
+    
+    FILE *fp;
+    char s[N];
+    char **dataArray;
+    int i = 0;
+    
+    fp = fopen( file_name, "r" );
+    if( fp == NULL ){
+        printf( "%s cannot be opened file!\n", file_name );
+        exit(1);
+    }
+    
+    dataArray = (char **) malloc(sizeof(char **) * N);
+    
+    while( fgets( s, N, fp ) != NULL ){ // get a each line, loop until null
+        
+        if(*s != '\n'){ // no need space
+            trim(s); //trim empty space
+            dataArray[i] = (char *) malloc(sizeof(char *) * N);
+            strcpy(dataArray[i], s); // assign to
+            int len = strlength(dataArray[i]);
+            dataArray[i] = (char *) realloc(dataArray[i], sizeof(char *) * len+1);
+            i++;
+        }
+    }
+    
+    fclose( fp );
+    
+    return dataArray;
+}
+
+
+
+void trim(char *s) {
     int i, j;
-    for( i = strlen(s)-1; i >= 0 && isspace( s[i] ); i-- ) ;
+    for( i = (int)strlen(s)-1; i >= 0 && isspace( s[i] ); i-- ) ;
     s[i+1] = '\0';
     for( i = 0; isspace( s[i] ); i++ ) ;
     if( i > 0 ) {
@@ -258,52 +203,8 @@ void trim( char *s ) {
     }
 }
 
-char** loadFile( char file_name[] ){
-    
-    FILE *fp;
-    char s[100];
-    char *p;
-    
-    char **dataArray;
-    char **passArray;
-    
-    char str[N] = "";
-    char *p1, *p2;
-    size_t len = 0, userdataLen = 0;
-    int i = 0;
-    
-    
-    fp = fopen( file_name, "r" );
-    if( fp == NULL ){
-        printf( "%s cannot be opened file!\n", file_name );
-        exit(1);
-    }
-    
-    dataArray = malloc(MAXUSER); //最初の配列のメモリを確保
-    
-    while( fgets( s, N, fp ) != NULL ){ // get a each line, loop until null
-        
-        if(*s != '\n'){ // no need space
-            trim(s); //trim empty space
-            dataArray[i] = (char *) malloc(sizeof(char *) * MAXUSER);
-            strcpy(dataArray[i], s); // assign to
-            i++;
-        }
-        
-    }
-    
-    
-    //    printf("here....%s\n", dataArray[0]);
-    //    for (int a = 0; a < i; a++) {
-    //        printf("[%d]%s\n",i, dataArray[a]);
-    //    }
-    //
-    fclose( fp );
-    
-    return dataArray;
+int strlength(char* line){
+    int len = (int)strlen(line);
+    return len;
 }
-
-
-
-
 

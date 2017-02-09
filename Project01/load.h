@@ -11,8 +11,6 @@
 
 
 void readStudent( void );
-void showMenuOptions( void );
-void showLoginView( void );
 char** readFile( char file_name[], char target[]);
 void trim( char *s );
 
@@ -21,7 +19,8 @@ char** loadFile( char file_name[] );
 char** getData(char** dataArray, char target[]);
 
 int checkWordsComma(char* word);
+int strlength(char* line);
 
-char** dividedDataCourses(char** dataArray);
+char** dividedDataCourses(char* dataArray);
 
 #endif /* load_h */
