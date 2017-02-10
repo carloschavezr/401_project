@@ -1,8 +1,14 @@
-courseID:“MADP101”
-name:“Objective-C”
+courseID:"MADP101"
+name:"Objective-C"
 
-courseID:“MADP301”
-name:“Project Management”
+courseID:"MADP301"
+name:"Project Management"
 
-courseID:“MADP402”
-name:“Android Programming”
+courseID:"MADP402"
+name:"Android Programming"
+
+courseID:"MADP201"
+name:"Web Development for Mobile Devices"
+
+courseID:"MADP103"
+name:"Rich Media Development"
