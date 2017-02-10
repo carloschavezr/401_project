@@ -12,3 +12,10 @@ name:"Web Development for Mobile Devices"
 
 courseID:"MADP103"
 name:"Rich Media Development"
+
+courseID:"MADP202"
+name:"Java Development"
+
+courseID:"MADP401"
+name:"C Objective C an Swift"
+

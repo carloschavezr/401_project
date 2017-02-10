@@ -7,6 +7,10 @@ courseID:"MADP301"
 mark:"60"
 
 studentID:"7813007"
+courseID:"MADP403"
+mark:"39"
+
+studentID:"7813007"
 courseID:"MADP202"
 mark:"45"
 
@@ -17,3 +21,19 @@ mark:"70"
 studentID:"7813008"
 courseID:"MADP301"
 mark:"30"
+
+studentID:"7813008"
+courseID:"MADP301"
+mark:"30"
+
+studentID:"7813008"
+courseID:"MADP402"
+mark:"10"
+
+studentID:"7813009"
+courseID:"MADP402"
+mark:"100"
+
+studentID:"7813009"
+courseID:"MADP301"
+mark:"58"
