@@ -147,16 +147,6 @@ char* substring(char* word, int raw){
 
 
 
-
-
-
-
-
-
-
-
-
-
 char** loadFile(char file_name[]){
     
     FILE *fp;
@@ -180,6 +170,7 @@ char** loadFile(char file_name[]){
             strcpy(dataArray[i], s); // assign to
             int len = strlength(dataArray[i]);
             dataArray[i] = (char *) realloc(dataArray[i], sizeof(char *) * len+1);
+            dataArray[i][len+1] = '\0';
             i++;
         }
     }
